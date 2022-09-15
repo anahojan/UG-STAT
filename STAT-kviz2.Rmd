@@ -1,0 +1,118 @@
+---
+title: "Kviz 2"
+author: "Ana Hojan 89191228"
+date: "19/12/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library("dplyr")
+library("ggplot2")
+library(BSDA)
+library(pwr)
+
+```
+
+## NALOGA 1
+Generirajte 50 naključnih števil iz normalne porazdelitve z parametroma µ = xx in σ = y, kjer je x predzadnja in y zadnja števka vaše vpisne številke. Narišite histogram. Poročajte 23. centil vaših podatkov.
+
+
+```{r}
+#x=2 y=8
+n<-50 #sample size
+mu<-22 #population mean
+sigma<-8 #population sd
+B<-100 #number of repetitions of simulation
+stand<-rep(NA,B)
+
+x<-c(1:B)
+for (val in x){
+  vzorec<-rnorm(n,mu,sigma)
+  m<-mean(vzorec)
+  std<-sd(vzorec)
+  std
+
+  
+  #standardization regarding sample sd
+  stand[val]<-sqrt(n)*(m-mu)/std
+}
+
+hist(stand,breaks = 10)
+
+
+```
+
+Poročajte 23. centil vaših podatkov.
+```{r}
+qnorm(0.23,mean=22,sd=8)
+```
+
+## NALOGA 2
+V R-ju so shranjeni podatki PlantGrowth. Z ustreznim ukazom gračno preverite ali je spremenljivka Weight porazdeljena normalno.
+
+```{r}
+
+
+hist(PlantGrowth$weight, breaks = 10, xlab = "Weight", main = "Histogram of the weight of PlantgGrowth")
+```
+
+Iz histograma ne moremo sklepati ali so naši podatki v skladu z normalno porazdelitvijo. Lahko uporabimo tiudi Q-Q graf.
+
+```{r}
+x= rnorm(30,mean(PlantGrowth$weight), sd(PlantGrowth$weight))
+y=PlantGrowth$weight
+qqplot(x,y,xlab = "Normal Distribution", ylab = "PlantGrowth weight", main = "Q-Q Plot")
+
+```
+Ker so naši podatki približno linearni nam graf nakazuje da so podatki porazdeljeni normalno. Za boljšo točnost bi morali imeti več podatkov.
+
+
+
+## NALOGA 3
+ Naj vaši podatki PlantGrowth predstavljajo vzorec. Uporabite ustrezen 
+statisti£ni test za preverjanje hipoteze ali je populacijsko povpre£je spremenljivke Weight manjše od 6. Naj bo stopnja značilnosti enaka α = 0.01. Poročajte 99% interval zaupanja. Ali lahko na podlagi vaših podatkov zavrnete ničelno domnevo?
+
+```{r}
+#h0 : mu>=6
+#h1: mu<6
+
+alpha3 = 0.01
+n3<-30 #sample size
+sd3<-sd(PlantGrowth$weight) #standard deviation of a sample
+m3<-mean(PlantGrowth$weight) #average weight of a sample
+
+
+tsum.test(mean.x = m3,s.x =sd3,n.x= 30,alternative = "less", mu=6, conf.level = 0.99, var.equal = TRUE )
+
+```
+Na podlagi naših podatkov lahko zavrnemo ničelno hipotezo, da je populacijsko povprečje manjše od 6.
+Interval zaupanja: (3.5,5.388187)
+
+
+
+## NALOGA 4
+Radi bi raziskali, ali je sprememba v številu ur spanja pri novopečenih
+brucih različna od nič. Zberete naslednje podatke (v urah):
+  0.55, 0.16, 2.6, 0.65, −0.23, 0.21, −4.3, 2, −1.7, 1.9
+
+ Kako velik vzorec morate zbrati, če želite imeti α = 0, 05 in moč testa enako 0, 80?
+
+```{r}
+vzorec4<-c(0.55, 0.16, 2.6, 0.65, −0.23, 0.21, −4.3, 2, −1.7, 1.9)
+m4<-mean(vzorec4) #sample average
+sd4<-sd(vzorec4) #sample standard deviation
+n4<-10
+
+#H0 mu pred-mu po =0
+#H1 mu pred-mupo != 0
+
+pwr.t.test(d=((m4-0)/sd4), sig.level = 0.05, type = "one.sample", alternative = "two.sided", power = 0.8)
+
+
+```
+Izbrati moramo 935 osebkov za brucev za raziskavo.
+
+
+
